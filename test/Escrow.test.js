@@ -175,4 +175,34 @@ describe("Escrow", () => {
       expect(await escrow.getBalance()).to.be.equal(0);
     });
   });
+
+  describe("Handles Cancellation", () => {
+    beforeEach(async () => {
+      let transaction = await escrow
+        .connect(buyer)
+        .depositFunds(1, { value: tokens(5) });
+      await transaction.wait();
+    });
+    it("Fails when anyone but buyer and seller tries to cancel", async () => {
+      await expect(escrow.connect(lender).cancelSale(1)).to.be.revertedWith(
+        "Only buyer or seller can call"
+      );
+    });
+    it("Fails because inspection has already passed", async () => {
+      let transaction = await escrow
+        .connect(inspector)
+        .updateInspectionStatus(1, true);
+      await transaction.wait();
+      await expect(escrow.connect(buyer).cancelSale(1)).to.be.revertedWith(
+        "Inspection already passed"
+      );
+    });
+    it("Goes Successfully", async () => {
+      let transaction = await escrow.connect(buyer).cancelSale(1);
+      await transaction.wait();
+
+      let result = await escrow.getBalance();
+      expect(result).to.be.equal(tokens(0));
+    })
+  })
 });

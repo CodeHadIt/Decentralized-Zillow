@@ -6,7 +6,6 @@ const Navigation = ({ account, setAccount }) => {
     const handleConnect = async () => {
          //This gets all the account in the MM wallet into an array
         const accounts = await window.ethereum.request({method: 'eth_requestAccounts'});
-        console.log(accounts);
         //The first one clicked, which will be at index 0 is then set as our Account;
         setAccount(accounts[0])
     }

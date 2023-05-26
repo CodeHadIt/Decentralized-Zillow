@@ -278,7 +278,7 @@ header {
 }
 
 .home__buy,
-.home__contact,
+.cancel__btn,
 .home__owned {
   margin: 20px 5px;
   background-color: var(--clr-blue);
@@ -296,18 +296,35 @@ header {
   height: 50px;
 }
 
-.home__contact {
-  width: 150px;
+.cancel__sale{
+  z-index: 3;
+  color: white;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.cancel__sale h3 {
+  font-size: 2rem ;
+}
+
+.cancel__btn {
+  width: 225px;
   height: 50px;
-
-  background-color: transparent;
+  background-color: white;
   color: var(--clr-blue);
-
   border: 1px solid var(--clr-blue);
 }
 
-.home__contact:hover {
-  background-color: #f7f7f7;
+.cancel__btn.yes {
+  background-color: var(--clr-blue);
+  color: white;
+}
+
+.cancel__btn.yes:hover {
+  border: 1px solid white;
 }
 
 .home__owned {

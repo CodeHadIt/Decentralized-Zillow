@@ -39,6 +39,7 @@ contract Escrow {
         require(msg.sender == inspector, "Only inspector can call this function");
         _;
     }
+    
 
     constructor(address _nftAddress, address payable _seller, address _lender, address _inspector) {
         nftAddress  = _nftAddress;
@@ -92,12 +93,10 @@ contract Escrow {
     }
 
     function cancelSale(uint256 _nftID) public {
-        //If the inspection has not been passed/Is not approved, send money from the contract address back to the buyer. If approved send to the seller
-        if (inspectionPassed[_nftID] == false) {
-            payable(buyer[_nftID]).transfer(address(this).balance);
-        } else {
-            payable(seller).transfer(address(this).balance);
-        }
+        require(msg.sender == buyer[_nftID] || msg.sender == payable(seller), "Only buyer or seller can call");
+        require(!inspectionPassed[_nftID], "Inspection already passed");
+        approval[_nftID][msg.sender] = false;
+        payable(buyer[_nftID]).transfer(address(this).balance);
     }
 
     //Returns the balance of the smart contract address;

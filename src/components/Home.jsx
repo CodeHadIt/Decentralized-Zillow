@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import close from '../assets/close.svg';
 
-const Home = ({ home, provider, account, escrow, handlePopUp }) => {
+const Home = ({ home, provider, account, escrow, handlePopUp}) => {
     const [buyer, setBuyer] = useState(null);
     const [lender, setLender] = useState(null);
     const [inspector, setInspector] = useState(null);
@@ -15,14 +15,12 @@ const Home = ({ home, provider, account, escrow, handlePopUp }) => {
 
     const [owner, setOwner] = useState(null);
 
+    const [cancelInitiated, setCancelInitiated] = useState(false);
+
     useEffect(()=>{
         fetchDetails();
         fetchOwner();
     }, [hasSold])
-
-    useEffect(()=> {
-        console.log(`The buyer account is ${buyer} | The seller account is ${seller} | The lender account is ${lender} | The inspector account is ${inspector} |`)
-    }, [account])
 
     const fetchDetails = async () => {
         //Buyer Actions
@@ -106,78 +104,156 @@ const Home = ({ home, provider, account, escrow, handlePopUp }) => {
         setHasSold(true);
     }
 
+    const handleCancelPopUp = (type) => {
+        if(type == "open") {
+            setCancelInitiated(true);
+        } else if (type == "close") {
+            setCancelInitiated(false);
+        }
+    };
+
+    const handleCancelSale = async (id) => {
+        const signer = await provider.getSigner();
+        let transaction = await escrow.connect(signer).cancelSale(id);
+        await transaction.wait();
+        setCancelInitiated(false);
+        setHasBought(false);
+    }
+
 
     return (
-        <div className="home">
-            <div className="home__details">
-                <div className="home__image">
-                    <img src={home.image} alt="home" />
-                </div>
-                
-                <div className="home__overview">
-                    <h1>{home.name}</h1>
-                    <p>
-                        <strong> {home.attributes[2].value}</strong> bds |
-                        <strong> {home.attributes[3].value}</strong> ba |
-                        <strong> {home.attributes[4].value}</strong> sqft |
-                    </p>
-                    <p>{home.address}</p>
-                    <h2>{home.attributes[0].value} ETH</h2>
-
-
-                    {owner ? (
-                        <div className="home__owned">Owned by {owner.slice(0,6) + "..." + owner.slice(38, 42)}</div>
-                    ) : (
-                        <div>
-                            {(account === inspector) ? (
-                                <button className="home__buy" onClick={handleInspection} disabled={hasInspected}
-                                >Approve Inspection</button>
-                            ): (account === lender) ? (
-                                <button className="home__buy" onClick={handleLend} disabled={hasLent}
-                                >Approve & Lend</button>
-                            ): (account === seller) ? (
-                                <button className="home__buy"
-                                onClick={handleSale}
-                                disabled={hasSold}
-                                >Approve & Sell</button>
-                            ): (
-                                <button className="home__buy"
-                                onClick={handleBuy}
-                                disabled={hasBought}
-                                >Buy
-                                </button>
-                            )}
-
-                            <button className="home__contact">Contact Agent
-                            </button>
-                        </div>
-                    )}
-
-                    <hr />
-
-                    <h2>Overview</h2>
-
-                    <p>{home.description}</p>
-
-                    <hr />
-
-                    <h2>Facts and Features</h2>
-
-                    <ul>
-                        {home.attributes.map((attributes, index)=> (
-                            <li key={index}>
-                                <strong>{attributes.trait_type}</strong> : {attributes.value}
-                            </li>)
-                        )}
-                    </ul>
-
-                </div>
-
-                <button onClick={handlePopUp} className="home__close">
-                    <img src={close} alt="close" />
-                </button>
+      <div className="home">
+        {!cancelInitiated && (
+          <div className="home__details">
+            <div className="home__image">
+              <img src={home.image} alt="home" />
             </div>
-        </div>
+
+            <div className="home__overview">
+              <h1>{home.name}</h1>
+              <p>
+                <strong> {home.attributes[2].value}</strong> bds |
+                <strong> {home.attributes[3].value}</strong> ba |
+                <strong> {home.attributes[4].value}</strong> sqft |
+              </p>
+              <p>{home.address}</p>
+              <h2>{home.attributes[0].value} ETH</h2>
+
+              {owner ? (
+                <div className="home__owned">
+                  Owned by {owner.slice(0, 6) + "..." + owner.slice(38, 42)}
+                </div>
+              ) : (
+                <div>
+                  {account === inspector ? (
+                    <button
+                      className="home__buy"
+                      onClick={handleInspection}
+                      disabled={hasInspected}
+                    >
+                      Approve Inspection
+                    </button>
+                  ) : account === lender ? (
+                    <button
+                      className="home__buy"
+                      onClick={handleLend}
+                      disabled={hasLent}
+                    >
+                      Approve & Lend
+                    </button>
+                  ) : account === seller ? (
+                    <>
+                      <button
+                        className="home__buy"
+                        onClick={handleSale}
+                        disabled={hasSold}
+                      >
+                        Approve & Sell
+                      </button>
+                      <button
+                        className="cancel__btn"
+                        onClick={() => handleCancelPopUp("open")}
+                      >
+                        Cancel Sale
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        className="home__buy"
+                        onClick={handleBuy}
+                        disabled={hasBought}
+                      >
+                        Buy
+                      </button>
+                      {hasBought && (
+                        <button
+                          className="cancel__btn"
+                          onClick={() => handleCancelPopUp("open")}
+                        >
+                          Cancel Purchase
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+
+              <hr />
+
+              <h2>Overview</h2>
+
+              <p>{home.description}</p>
+
+              <hr />
+
+              <h2>Facts and Features</h2>
+
+              <ul>
+                {home.attributes.map((attributes, index) => (
+                  <li key={index}>
+                    <strong>{attributes.trait_type}</strong> :{" "}
+                    {attributes.value}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <button onClick={handlePopUp} className="home__close">
+              <img src={close} alt="close" />
+            </button>
+          </div>
+        )}
+        {cancelInitiated && hasBought ? (
+          <div className="cancel__sale">
+            <h4>Are you sure you want to cancel the transaction?</h4>
+            <button
+              className={`cancel__btn yes`}
+              onClick={() => handleCancelSale(home.id)}
+            >
+              Yes
+            </button>
+            <button
+              className="cancel__btn"
+              onClick={() => handleCancelPopUp("close")}
+            >
+              No
+            </button>
+          </div>
+        ) : null}
+
+        {cancelInitiated && !hasBought ? (
+          <div className="cancel__sale">
+            <h3>You Cannot cancel Yet</h3>
+            <button
+              className="cancel__btn"
+              onClick={() => handleCancelPopUp("close")}
+            >
+              Okay
+            </button>
+          </div>
+        ) : null}
+      </div>
     );
 }
 

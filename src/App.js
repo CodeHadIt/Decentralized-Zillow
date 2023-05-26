@@ -60,7 +60,6 @@ function App() {
   }
 
   const handleSearchedTerm = term => {
-    console.log(term)
     filterHomes(term);
   }
 
@@ -69,9 +68,7 @@ function App() {
     const filteredHomes = allHomes.filter((home) => {
       return home.address.toLowerCase().includes(value);
     });
-    console.log(filteredHomes);
     setHomes(filteredHomes);
-    console.log(homes)
   }
 
   const handlePopUp = (home) => {
@@ -116,7 +113,9 @@ function App() {
             ))}
           </div>
         ) : (
-          <h2 className='not__found'>Oops, Your home does not exist on the blockchain!</h2>
+          <h2 className="not__found">
+            Oops, Your home does not exist on the blockchain!
+          </h2>
         )}
       </div>
 
