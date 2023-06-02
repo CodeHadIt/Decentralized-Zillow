@@ -1,3 +1,3 @@
-export const RealEstateAddress = "0x5f3f1dBD7B74C6B46e8c44f98792A1dAf8d69154";
+export const RealEstateAddress = "0xfcef64Dba067C34b200eB4680c9D763B6fEB1aeF";
 
-export const EscrowAddress = "0xb7278A61aa25c888815aFC32Ad3cC52fF24fE575";
+export const EscrowAddress = "0xA6078E53388cC07b27D0F888E7AD34ffB163Deb6";
